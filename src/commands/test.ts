@@ -3,7 +3,7 @@ import { Entity, Node, Test, validate } from 'wollok-ts'
 import interpret from 'wollok-ts/dist/interpreter/interpreter'
 import natives from 'wollok-ts/dist/wre/wre.natives'
 import { buildEnvironmentForProject, failureDescription, problemDescription, successDescription, valueDescription } from '../utils'
-import { bold } from 'chalk'
+import chalk from 'chalk'
 import  logger  from  'loglevel'
 import { is, match, when } from 'wollok-ts/dist/extensions'
 
@@ -70,7 +70,7 @@ export default async function (filter: string | undefined, { project, skipValida
 
   failures.forEach(([test, error]) => {
     log()
-    logger.error(failureDescription(bold(test.fullyQualifiedName), error))
+    logger.error(failureDescription(chalk.bold(test.fullyQualifiedName), error))
   })
 
   logger.info(

@@ -1,7 +1,7 @@
-import { blue, bold, green, italic, red, yellowBright } from 'chalk'
+import chalk from 'chalk'
 import fs, { Dirent } from 'fs'
 import { readFile } from 'fs/promises'
-import globby from 'globby'
+import { globby } from 'globby'
 import logger from 'loglevel'
 import path, { join } from 'path'
 import { Entity, Environment, Field, Name, Node, Parameter, Problem, RuntimeObject, Sentence, Variable, WOLLOK_EXTRA_STACK_TRACE_HEADER, buildEnvironment } from 'wollok-ts'
@@ -36,25 +36,25 @@ export async function buildEnvironmentForProject(project: string, files: string[
 
   const paths = files.length ? files : await globby('**/*.@(wlk|wtest|wpgm)', { cwd: project })
 
-  if (debug) time('Reading project files')
+  if(debug) time('Reading project files')
   const environmentFiles = await Promise.all(paths.map(async name =>
     ({ name, content: await readFile(join(project, name), 'utf8') })
   ))
   if (debug) timeEnd('Reading project files')
 
-  if (debug) time('Building environment')
+  if(debug) time('Building environment')
   try { return buildEnvironment(environmentFiles) }
-  finally { if (debug) timeEnd('Building environment') }
+  finally { if(debug) timeEnd('Building environment' ) }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 // PRINTING
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-export const valueDescription = (val: any): string => italic(blue(val))
+export const valueDescription = (val: any): string => chalk.italic(chalk.blue(val))
 
 export const successDescription = (description: string): string =>
-  green(`${bold('✓')} ${description}`)
+  chalk.green(`${chalk.bold('✓')} ${description}`)
 
 export const failureDescription = (description: string, e?: Error): string => {
   const indexOfTsStack = e?.stack?.indexOf(WOLLOK_EXTRA_STACK_TRACE_HEADER)
@@ -66,12 +66,12 @@ export const failureDescription = (description: string, e?: Error): string => {
     .replaceAll('    ', '  ')
     .split('\n').join('\n  ')
 
-  return red(`${bold('✗')} ${description}${stack ? '\n  ' + stack : ''}`)
+  return chalk.red(`${chalk.bold('✗')} ${description}${stack ? '\n  ' + stack : ''}`)
 }
 
 export const problemDescription = (problem: Problem): string => {
-  const color = problem.level === 'warning' ? yellowBright : red
-  const header = bold(`[${problem.level.toUpperCase()}]`)
+  const color = problem.level === 'warning' ? chalk.yellowBright : chalk.red
+  const header = chalk.bold(`[${problem.level.toUpperCase()}]`)
   return color(`${header}: ${problem.code} at ${problem.node?.sourceInfo ?? 'unknown'}`)
 }
 
@@ -121,4 +121,5 @@ const scopeContribution = (contributor: Node): List<[Name, Node]> => {
     return contributor.name ? [[contributor.name, contributor]] : []
   return []
 }
+
 const canBeReferenced = (node: Node): node is Entity | Field | Parameter => node.is(Entity) || node.is(Field) || node.is(Parameter)

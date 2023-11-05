@@ -1,4 +1,4 @@
-import { bold, yellow } from 'chalk'
+import chalk from 'chalk'
 import { Command } from 'commander'
 import cors from 'cors'
 import express from 'express'
@@ -9,7 +9,7 @@ import { Server } from 'socket.io'
 import { Entity, Environment, Evaluation, Import, Package, Reference, Sentence, WollokException, parse, validate } from 'wollok-ts'
 import { notEmpty } from 'wollok-ts/dist/extensions'
 import { Interpreter } from 'wollok-ts/dist/interpreter/interpreter'
-import link from 'wollok-ts/dist/linker'
+import { link } from 'wollok-ts'
 import { ParseError } from 'wollok-ts/dist/parser'
 import natives from 'wollok-ts/dist/wre/wre.natives'
 import { getDataDiagram } from '../services/diagram-generator'
@@ -49,7 +49,7 @@ export default async function (autoImportPath: string | undefined, options: Opti
     terminal: true,
     removeHistoryDuplicates: true,
     tabSize: 2,
-    prompt: bold(`wollok${autoImportName ? ':' + autoImportName : ''}> `),
+    prompt: chalk.bold(`wollok${autoImportName ? ':' + autoImportName : ''}> `),
     completer: autocomplete,
   })
     .on('close', () => log(''))
@@ -67,7 +67,7 @@ export default async function (autoImportPath: string | undefined, options: Opti
     })
 
   io.on('connection', _socket => {
-    logger.info(successDescription('Dynamic diagram available at: ' + bold(`http://localhost:${options.port}`)))
+    logger.info(successDescription('Dynamic diagram available at: ' + chalk.bold(`http://localhost:${options.port}`)))
     repl.prompt()
   })
   io.on('connection', socket => {
@@ -103,12 +103,14 @@ export async function initializeInterpreter(autoImportPath: string | undefined, 
     if (error.level === 'error') {
       logger.error(failureDescription('Exiting REPL due to validation errors!'))
     } else {
+      logger.error(error)
       logger.error(failureDescription('Uh-oh... Unexpected Error!'))
       logger.debug(failureDescription('Stack trace:', error))
     }
     process.exit()
   }
 
+  console.info('--')
   return new Interpreter(Evaluation.build(environment, natives))
 }
 
@@ -145,7 +147,7 @@ function defineCommands(autoImportPath: string | undefined, options: Options, re
     .description('Opens Dynamic Diagram')
     .allowUnknownOption()
     .action(async () => {
-      logger.info(successDescription('Dynamic diagram available at: ' + bold(`http://localhost:${options.port}`)))
+      logger.info(successDescription('Dynamic diagram available at: ' + chalk.bold(`http://localhost:${options.port}`)))
     })
 
   commandHandler.command(':help')
@@ -227,11 +229,11 @@ async function initializeClient(options: Options) {
   server.addListener('error', ({ port, code }: { port: string, code: string }) => {
     console.info('')
     if (code === 'EADDRINUSE') {
-      console.info(yellow(bold(`⚡ We couldn't start dynamic diagram at port ${port}, because it is already in use. ⚡`)))
+      console.info(chalk.yellow(chalk.bold(`⚡ We couldn't start dynamic diagram at port ${port}, because it is already in use. ⚡`)))
       // eslint-disable-next-line @typescript-eslint/quotes
-      console.info(yellow(`Please make sure you don't have another REPL session running in another terminal. \nIf you want to start another instance, you can use "--port xxxx" option, where xxxx should be any available port.`))
+      console.info(chalk.yellow(`Please make sure you don't have another REPL session running in another terminal. \nIf you want to start another instance, you can use "--port xxxx" option, where xxxx should be any available port.`))
     } else {
-      console.info(yellow(bold(`⚡ REPL couldn't be started at port ${port}, error code ["${code}]. ⚡`)))
+      console.info(chalk.yellow(chalk.bold(`⚡ REPL couldn't be started at port ${port}, error code ["${code}]. ⚡`)))
     }
     process.exit(1)
   })

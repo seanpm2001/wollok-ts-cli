@@ -1,4 +1,4 @@
-import { bold } from 'chalk'
+import chalk from 'chalk'
 import cors from 'cors'
 import express from 'express'
 import fs, { Dirent } from 'fs'
@@ -106,7 +106,7 @@ export default async function (programFQN: Name, { project, assets, skipValidati
     express.static(assetsPath ?? project, { maxAge: '1d' }))
   server.listen(parseInt(port), 'localhost')
 
-  logger.info(successDescription('Game available at: ' + bold(`http://localhost:${port}`)))
+  logger.info(successDescription('Game available at: ' + chalk.bold(`http://localhost:${port}`)))
 
   io.on('connection', socket => {
     logger.info(successDescription('Running game!'))
